@@ -469,7 +469,7 @@ int do_exec_windows(struct ssh *ssh, Session *s, const char *command, int pty) {
 		}
 		
 		//Passing the PRIVSEP_LOG_FD (STDERR_FILENO + 2) to sftp-server for logging
-		if (command) {
+		if (exec_command) {
 			if (strstr(exec_command, "sftp-server.exe")) {
 				if (posix_spawn_file_actions_adddup2(&actions, STDERR_FILENO + 2, SFTP_SERVER_LOG_FD) != 0) {
 					errno = EOTHER;
