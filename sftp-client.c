@@ -1727,6 +1727,11 @@ do_download(struct sftp_conn *conn, const char *remote_path,
 		}
 	}
 	close(local_fd);
+#ifdef WINDOWS
+	if (add_mark_of_web(local_path) == -1) {
+		debug("%s: failed to add mark of the web", local_path);
+	}
+#endif // WINDOWS
 	sshbuf_free(msg);
 	free(handle);
 
