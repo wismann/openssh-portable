@@ -1733,3 +1733,4 @@
 #define WITH_ZLIB
 #define _PATH_TTY "conin$"
 #define HAVE_STRUCT_POLLFD_FD 1
+#define HAVE_KILLPG 1
