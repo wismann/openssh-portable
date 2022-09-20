@@ -183,6 +183,9 @@ Describe "Tests for scp command" -Tags "CI" {
 
         if($Options.contains("-p "))
         {
+            # TODO: Test only
+            Write-Verbose -Verbose "Source File LastWriteTime: $((Get-ChildItem -Path $SourceFilePath).LastWriteTime.DateTime)"
+            Write-Verbose -Verbose "Dest File LastWriteTime: $((Get-ChildItem -Path $DestinationFilePath).LastWriteTime.DateTime)"
             $equal = @(Compare-Object (Get-ChildItem -path $SourceFilePath).LastWriteTime.DateTime (Get-ChildItem -path $DestinationFilePath).LastWriteTime.DateTime ).Length -eq 0
             $equal | Should Be $true
         }
