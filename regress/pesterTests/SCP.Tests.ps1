@@ -172,7 +172,7 @@ Describe "Tests for scp command" -Tags "CI" {
 
     It 'File copy: <Title> ' -TestCases:$testData {
         param([string]$Title, $Source, $Destination, [string]$Options)
-            
+        Start-Sleep -Seconds 60
         iex  "scp $Options $Source $Destination"
         $LASTEXITCODE | Should Be 0
         #validate file content. DestPath is the path to the file.
