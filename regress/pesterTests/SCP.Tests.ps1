@@ -52,13 +52,7 @@ Describe "Tests for scp command" -Tags "CI" {
                 Source = $SourceFilePath
                 Destination = "test_target:$DestinationFilePath"
                 Options = "-S `"$sshcmd`""
-            },
-            @{
-                Title = 'Simple copy remote file to local file'
-                Source = "test_target:$SourceFilePath"
-                Destination = $DestinationFilePath
-                Options = "-p -c aes128-ctr -C"
-            },            
+            },          
             @{
                 Title = 'Simple copy local file to local dir'
                 Source = $SourceFilePath
