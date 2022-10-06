@@ -1208,10 +1208,10 @@ sk_sign(uint32_t alg, const uint8_t *data, size_t datalen,
 		if ((sk = sk_open("windows://hello")) == NULL) {
 			if (pin != NULL ||
 			    (flags & SSH_SK_USER_VERIFICATION_REQD))
-				sk = sk_probe(NULL, NULL, 0);
+				sk = sk_probe(NULL, NULL, 0, 0);
 			else
 				sk = sk_probe(application, key_handle,
-				    key_handle_len);
+				    key_handle_len, 0);
 		}
 	}
 #else

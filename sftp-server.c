@@ -181,8 +181,10 @@ static const struct sftp_handler extended_handlers[] = {
 	{ "copy-data", "copy-data", 0, process_extended_copy_data, 1 },
 	{ "home-directory", "home-directory", 0,
 	    process_extended_home_directory, 0 },
+#ifndef WINDOWS
 	{ "users-groups-by-id", "users-groups-by-id@openssh.com", 0,
 	    process_extended_get_users_groups_by_id, 0 },
+#endif
 	{ NULL, NULL, 0, NULL, 0 }
 };
 
@@ -1759,6 +1761,7 @@ process_extended_home_directory(u_int32_t id)
 static void
 process_extended_get_users_groups_by_id(u_int32_t id)
 {
+#ifndef WINDOWS
 	struct passwd *user_pw;
 	struct group *gr;
 	struct sshbuf *uids, *gids, *usernames, *groupnames, *msg;
@@ -1809,6 +1812,7 @@ process_extended_get_users_groups_by_id(u_int32_t id)
 	sshbuf_free(usernames);
 	sshbuf_free(groupnames);
 	sshbuf_free(msg);
+#endif
 }
 
 static void
