@@ -52,7 +52,13 @@ Describe "Tests for scp command" -Tags "CI" {
                 Source = $SourceFilePath
                 Destination = "test_target:$DestinationFilePath"
                 Options = "-S `"$sshcmd`""
-            },          
+            },
+            @{
+                Title = 'Simple copy remote file to local file'
+                Source = "test_target:$SourceFilePath"
+                Destination = $DestinationFilePath
+                Options = "-p -c aes128-ctr -C"
+            },            
             @{
                 Title = 'Simple copy local file to local dir'
                 Source = $SourceFilePath
@@ -174,11 +180,8 @@ Describe "Tests for scp command" -Tags "CI" {
         $equal = @(Compare-Object (Get-ChildItem -path $SourceFilePath) (Get-ChildItem -path $DestinationFilePath) -Property Name, Length ).Length -eq 0
         $equal | Should Be $true
 
-        if($Options.contains("-p "))
+        if($Options.contains("-p ") -and [System.Convert]::ToInt32((Get-WMIObject win32_operatingsystem).Version.Split(".")[0]) -ge 10)
         {
-            # TODO: Test only
-            Write-Verbose -Verbose "Source File LastWriteTime: $((Get-ChildItem -Path $SourceFilePath).LastWriteTime.DateTime)"
-            Write-Verbose -Verbose "Dest File LastWriteTime: $((Get-ChildItem -Path $DestinationFilePath).LastWriteTime.DateTime)"
             $equal = @(Compare-Object (Get-ChildItem -path $SourceFilePath).LastWriteTime.DateTime (Get-ChildItem -path $DestinationFilePath).LastWriteTime.DateTime ).Length -eq 0
             $equal | Should Be $true
         }
