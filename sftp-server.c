@@ -745,8 +745,9 @@ process_init(void)
 	compose_extension(msg, "expand-path@openssh.com", "1");
 	compose_extension(msg, "copy-data", "1");
 	compose_extension(msg, "home-directory", "1");
+#ifndef WINDOWS
 	compose_extension(msg, "users-groups-by-id@openssh.com", "1");
-
+#endif
 	send_msg(msg);
 	sshbuf_free(msg);
 }
