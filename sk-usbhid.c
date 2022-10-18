@@ -780,7 +780,10 @@ static int
 key_lookup(fido_dev_t *dev, const char *application, const uint8_t *user_id,
     size_t user_id_len, const char *pin)
 {
-	fido_assert_t *assert = NULL;
+#ifdef HAVE_FIDO_DEV_IS_WINHELLO
+	return FIDO_OK;
+#else
+	fido_assert_t* assert = NULL;
 	uint8_t message[32];
 	int r = FIDO_ERR_INTERNAL;
 	int sk_supports_uv, uv;
@@ -809,33 +812,32 @@ key_lookup(fido_dev_t *dev, const char *application, const uint8_t *user_id,
 	}
 	uv = FIDO_OPT_OMIT;
 	if (pin == NULL && check_sk_options(dev, "uv", &sk_supports_uv) == 0 &&
-	    sk_supports_uv != -1)
+		sk_supports_uv != -1)
 		uv = FIDO_OPT_TRUE;
 	if ((r = fido_assert_set_uv(assert, uv)) != FIDO_OK) {
 		skdebug(__func__, "fido_assert_set_uv: %s", fido_strerr(r));
 		goto out;
 	}
-#ifndef WINDOWS
 	if ((r = fido_dev_get_assert(dev, assert, pin)) != FIDO_OK) {
 		skdebug(__func__, "fido_dev_get_assert: %s", fido_strerr(r));
 		goto out;
 	}
-#endif
 	r = FIDO_ERR_NO_CREDENTIALS;
 	skdebug(__func__, "%zu signatures returned", fido_assert_count(assert));
 	for (i = 0; i < fido_assert_count(assert); i++) {
 		if (fido_assert_user_id_len(assert, i) == user_id_len &&
-		    memcmp(fido_assert_user_id_ptr(assert, i), user_id,
-		    user_id_len) == 0) {
+			memcmp(fido_assert_user_id_ptr(assert, i), user_id,
+				user_id_len) == 0) {
 			skdebug(__func__, "credential exists");
 			r = FIDO_OK;
 			goto out;
 		}
 	}
- out:
+out:
 	fido_assert_free(&assert);
 
 	return r;
+#endif  /* HAVE_FIDO_DEV_IS_WINHELLO */
 }
 
 int
