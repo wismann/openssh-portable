@@ -70,7 +70,7 @@ Describe "E2E scenarios for certificate authentication" -Tags "CI" {
             $pcOutFile = Join-Path $testDir "$tC.$tI.pcout.txt"
             $logFile = Join-Path $testDir "$tC.$tI.log.txt"
             Remove-Item -Force $pcOutFile -ErrorAction SilentlyContinue
-            $sshdArgs = "-ddd -f $sshdconfig  -E $logFile -o `"AuthorizedKeysFile .fake/authorized_keys`""
+            $sshdArgs = "-d -f $sshdconfig  -E $logFile -o `"AuthorizedKeysFile .fake/authorized_keys`""
             $sshdArgs += " -o `"AuthorizedPrincipalsCommand=$env:windir\system32\cmd.exe /c echo otheruser& echo $pkuser& whoami > $pcOutFile`""
             $sshdArgs += " -o `"AuthorizedPrincipalsCommandUser=$ssouser`""
             $sshdArgs += " -o PasswordAuthentication=no"
@@ -79,7 +79,7 @@ Describe "E2E scenarios for certificate authentication" -Tags "CI" {
             
             #set up SSH_ASKPASS for key passphrase
             Add-PasswordSetting -Pass $keypassphrase
-            $o = ssh -vvv -i $user_key -p 47004 $pkuser@$server echo 2345
+            $o = ssh -i $user_key -p 47004 $pkuser@$server echo 2345
             Remove-PasswordSetting   
             
             Stop-SSHDTestDaemon -Port 47004
