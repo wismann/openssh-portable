@@ -70,7 +70,7 @@ Describe "E2E scenarios for certificate authentication" -Tags "CI" {
             $pcOutFile = Join-Path $testDir "$tC.$tI.pcout.txt"
             $logFile = Join-Path $testDir "$tC.$tI.log.txt"
             Remove-Item -Force $pcOutFile -ErrorAction SilentlyContinue
-            $sshdArgs = "-d -f $sshdconfig  -E $logFile -o `"AuthorizedKeysFile .fake/authorized_keys`""
+            $sshdArgs = "-ddd -f $sshdconfig  -E $logFile -o `"AuthorizedKeysFile .fake/authorized_keys`""
             $sshdArgs += " -o `"AuthorizedPrincipalsCommand=$env:windir\system32\cmd.exe /c echo otheruser& echo $pkuser& whoami > $pcOutFile`""
             $sshdArgs += " -o `"AuthorizedPrincipalsCommandUser=$ssouser`""
             $sshdArgs += " -o PasswordAuthentication=no"
