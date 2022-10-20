@@ -59,7 +59,7 @@ for mode in scp sftp ; do
 	$SCP "${scpopts[@]}" somehost:${DATA} ${COPY} || fail "copy failed"
 	cmp ${DATA} ${COPY} || fail "corrupted copy"
 
-	# In place tests will not work on Windows because the file being read from is the file being written to simultaneously
+	# In place tests will not work on Windows because of simultaneous read of/write to file
 
 	# verbose "$tag: copy local file to remote file in place"
 	# scpclean
