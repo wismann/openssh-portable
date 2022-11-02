@@ -180,7 +180,7 @@ Describe "Tests for scp command" -Tags "CI" {
         $equal = @(Compare-Object (Get-ChildItem -path $SourceFilePath) (Get-ChildItem -path $DestinationFilePath) -Property Name, Length ).Length -eq 0
         $equal | Should Be $true
 
-        if($Options.contains("-p ") -and [System.Convert]::ToInt32((Get-WMIObject win32_operatingsystem).Version.Split(".")[0]) -ge 10)
+        if($Options.contains("-p ") -and [environment]::OSVersion.Version.Major -ge 10)
         {
             $equal = @(Compare-Object (Get-ChildItem -path $SourceFilePath).LastWriteTime.DateTime (Get-ChildItem -path $DestinationFilePath).LastWriteTime.DateTime ).Length -eq 0
             $equal | Should Be $true
