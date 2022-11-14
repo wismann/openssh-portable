@@ -28,10 +28,12 @@ NestedModules = @(
     '../OpenSSHTestHelper.psm1')
 
 FunctionsToExport = @(
-    'Invoke-AllLocally',
     'Invoke-AzDOBuild',
     'Install-OpenSSH',
     'Invoke-OpenSSHTests',
-    'Copy-OpenSSHTestResults')
-
+    'Copy-OpenSSHTestResults',
+    'Copy-BuildResults',
+    'Copy-UnitTests',
+    'Install-UnitTests',
+    'Clear-TestEnvironmentSetup')
 }

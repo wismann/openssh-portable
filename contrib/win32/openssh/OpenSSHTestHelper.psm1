@@ -401,10 +401,12 @@ function Install-OpenSSHTestDependencies
         Invoke-Expression ((new-object net.webclient).DownloadString('https://chocolatey.org/install.ps1')) 2>&1 >> $Script:TestSetupLogFile
     }
 
-    $isModuleAvailable = Get-Module 'Pester' -ListAvailable
-    if (-not ($isModuleAvailable))
+    # Pester 5.x is not compatible with tests.
+    $InstalledPesters = Get-Module -Name 'Pester' -ListAvailable | Where-Object { $_.Version -lt '5.0' }
+    if ($InstalledPesters.Count -eq 0)
     {      
         Write-Log -Message "Installing Pester..." 
+        # Install-Module -Name 'Pester' -RequiredVersion 3.4.6
         choco install Pester --version 3.4.6 -y --force --limitoutput 2>&1 >> $Script:TestSetupLogFile
     }
 
@@ -522,8 +524,10 @@ function Get-UserSID
     Clear-OpenSSHTestEnvironment
 #>
 function Clear-OpenSSHTestEnvironment
-{   
-    if($Global:OpenSSHTestInfo -eq $null) {
+{
+    Write-Verbose -Verbose -Message "Running Clear-OpenSSHTestEnvironment..."
+
+    if ($Global:OpenSSHTestInfo -eq $null) {
         throw "OpenSSHTestInfo is not set. Did you run Set-OpenSShTestEnvironment?"
     }
 
@@ -638,9 +642,11 @@ function Get-UnitTestDirectory
     Run OpenSSH Setup tests.
 #>
 function Invoke-OpenSSHSetupTest
-{    
+{
+    # Tests are not compatible with latest Pester 5.x.
+    Import-Module -Name 'Pester' -MaximumVersion 4.9.9 -Force -Global
+
     # Discover all CI tests and run them.
-    Import-Module pester -force -global
     Push-Location $Script:E2ETestDirectory
     Write-Log -Message "Running OpenSSH Setup tests..."
     $testFolders = @(Get-ChildItem *.tests.ps1 -Recurse | ForEach-Object{ Split-Path $_.FullName} | Sort-Object -Unique)
@@ -653,9 +659,11 @@ function Invoke-OpenSSHSetupTest
     Run OpenSSH uninstall tests.
 #>
 function Invoke-OpenSSHUninstallTest
-{    
+{
+    # Tests are not compatible with latest Pester 5.x.
+    Import-Module -Name 'Pester' -MaximumVersion 4.9.9 -Force -Global
+
     # Discover all CI tests and run them.
-    Import-Module pester -force -global
     Push-Location $Script:E2ETestDirectory
     Write-Log -Message "Running OpenSSH Uninstall tests..."
     $testFolders = @(Get-ChildItem *.tests.ps1 -Recurse | ForEach-Object{ Split-Path $_.FullName} | Sort-Object -Unique)
@@ -670,12 +678,15 @@ function Invoke-OpenSSHUninstallTest
 function Invoke-OpenSSHE2ETest
 {
     [CmdletBinding()]
-    param
-    (
+    param (
         [ValidateSet('CI', 'Scenario')]
-        [string]$pri = "CI")
+        [string]$pri = "CI"
+    )
+
+    # Tests are not compatible with latest Pester 5.x.
+    Import-Module -Name 'Pester' -MaximumVersion 4.9.9 -Force -Global
+
     # Discover all CI tests and run them.
-    Import-Module pester -force -global
     Push-Location $Script:E2ETestDirectory
     Write-Log -Message "Running OpenSSH E2E tests..."
     $testFolders = @(Get-ChildItem *.tests.ps1 -Recurse | ForEach-Object{ Split-Path $_.FullName} | Sort-Object -Unique)
@@ -712,7 +723,7 @@ function Invoke-OpenSSHBashTests
 
     $bashTestDirectory = Join-Path $repositoryRoot.FullName -ChildPath "regress"
 
-    &"$PSScriptRoot\bash_tests_iterator.ps1" -OpenSSHBinPath $Script:OpenSSHBinPath -BashTestsPath $bashTestDirectory -ShellPath $bashPath -ArtifactsDirectoryPath $bashTestDirectory
+    & "$PSScriptRoot\bash_tests_iterator.ps1" -OpenSSHBinPath $Script:OpenSSHBinPath -BashTestsPath $bashTestDirectory -ShellPath $bashPath -ArtifactsDirectoryPath $bashTestDirectory
 }
 
 <#
@@ -720,12 +731,22 @@ function Invoke-OpenSSHBashTests
     Run openssh unit tests.
 #>
 function Invoke-OpenSSHUnitTest
-{     
+{
+    param (
+        [string] $UnitTestDirectory = ""
+    )
+
     # Discover all CI tests and run them.
-    if([string]::Isnullorempty($Script:UnitTestDirectory))
+    if (! [string]::IsNullOrEmpty($UnitTestDirectory) -and (Test-Path -Path $UnitTestDirectory))
+    {
+        $Script:UnitTestDirectory = $UnitTestDirectory
+        $OpenSSHTestInfo["UnitTestDirectory"] = $UnitTestDirectory
+    }
+    elseif ([string]::Isnullorempty($Script:UnitTestDirectory))
     {
         $Script:UnitTestDirectory = $OpenSSHTestInfo["UnitTestDirectory"]
     }
+    
     Push-Location $Script:UnitTestDirectory
     Write-Log -Message "Running OpenSSH unit tests..."
     if (Test-Path $Script:UnitTestResultsFile)
@@ -793,14 +814,19 @@ function Write-Log
         [ValidateNotNullOrEmpty()]
         [string] $Message
     )
-    if(-not (Test-Path (Split-Path $Script:TestSetupLogFile) -PathType Container))
+
+    if (-not (Test-Path (Split-Path $Script:TestSetupLogFile) -PathType Container))
     {
         $null = New-Item -ItemType Directory -Path (Split-Path $Script:TestSetupLogFile) -Force -ErrorAction SilentlyContinue | out-null
     }
+
     if (-not ([string]::IsNullOrEmpty($Script:TestSetupLogFile)))
     {
         Add-Content -Path $Script:TestSetupLogFile -Value $Message
-    }  
+    }
+
+    # Write message to verbose stream.
+    Write-Verbose -Verbose -Message $Message
 }
 
 Export-ModuleMember -Function Set-BasicTestInfo, Set-OpenSSHTestEnvironment, Clear-OpenSSHTestEnvironment, Invoke-OpenSSHSetupTest, Invoke-OpenSSHUnitTest, Invoke-OpenSSHE2ETest, Invoke-OpenSSHUninstallTest, Invoke-OpenSSHBashTests
