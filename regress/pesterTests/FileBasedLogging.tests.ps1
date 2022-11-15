@@ -131,11 +131,11 @@ Describe "Tests for admin and non-admin file based logs" -Tags "CI" {
 
                 if($OpenSSHTestInfo["NoLibreSSL"])
                 {
-                    ssh-keygen.exe -t ed25519 -f $KeyFilePath -Z -P `"`" aes128-ctr
+                    ssh-keygen.exe -t ed25519 -f $KeyFilePath -Z -P "" aes128-ctr
                 }
                 else
                 {
-                    ssh-keygen.exe -t ed25519 -f $KeyFilePath -P `"`"
+                    ssh-keygen.exe -t ed25519 -f $KeyFilePath -P ""
                 }
                 Copy-Item "$keyFilePath.pub" $authorizedkeyPath -Force -ErrorAction SilentlyContinue
                 Repair-AuthorizedKeyPermission -Filepath $authorizedkeyPath -confirm:$false
