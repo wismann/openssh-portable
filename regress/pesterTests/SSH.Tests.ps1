@@ -153,7 +153,7 @@ Describe "E2E scenarios for ssh client" -Tags "CI" {
 
         It "$tC.$tI - multiple double quotes in cmdline" {
             # actual command line ssh target \"cmd\" /c \"echo hello\"
-            $o = ssh test_target `\`"cmd`\`" /c `\`"echo hello`\`"
+            $o = ssh test_target `"cmd`" /c `"echo hello`"
             $o | Should Be "hello"
         }
 
@@ -219,19 +219,19 @@ Describe "E2E scenarios for ssh client" -Tags "CI" {
         }
         It "$tC.$tI - powershell as default shell and double quotes in cmdline" {
             # actual command line ssh target echo `"hello`"
-            $o = ssh test_target echo ``\`"hello``\`"
+            $o = ssh test_target echo `"hello`"
             $o | Should Be "`"hello`""
         }
         It "$tC.$tI - multiple commands with double quotes in powershell cmdlet" -skip:$skip {
             # actual command line ssh target cd "$env:programfiles";pwd
-            $o = ssh test_target "cd \`"`$env:programfiles\`";pwd"
+            $o = ssh test_target "cd `"`$env:programfiles\`";pwd"
             $LASTEXITCODE | Should Be 0
             $match = $o -match "Program Files"
             $match.count | Should be 1
         }
         It "$tC.$tI - multiple commands with double quotes in powershell cmdlet" -skip:$skip {
             # actual command line ssh target dir "$env:programfiles";cd "$env:programfiles";pwd
-            $o = ssh test_target "dir \`"`$env:programfiles\`";cd \`"`$env:programfiles\`";pwd"
+            $o = ssh test_target "dir `"`$env:programfiles\`";cd `"`$env:programfiles\`";pwd"
             $LASTEXITCODE | Should Be 0
             #$o -contains "Program Files" | Should Be $True
             $match = $o -match "Program Files"
@@ -263,7 +263,7 @@ Describe "E2E scenarios for ssh client" -Tags "CI" {
         }
         It "$tC.$tI - cmd as default shell and double quotes in cmdline" {
             # actual command line ssh target echo "\"hello\""
-            $o = ssh test_target 'echo "\"hello\""'
+            $o = ssh test_target echo "`"hello`""
             $o | Should Be "`"hello`""
         }
         It "$tC.$tI - single quotes in powershell cmdlet" -skip:$skip {
@@ -286,7 +286,7 @@ Describe "E2E scenarios for ssh client" -Tags "CI" {
         }
         It "$tC.$tI - shellhost as default shell and multiple double quotes in cmdline" {
             # actual command line ssh target \"cmd\" /c \"echo \"hello\"\"
-            $o = ssh test_target `\`"cmd`\`" /c `\`"echo \`"hello\`"`\`"
+            $o = ssh test_target `"cmd`" /c `"echo `"hello`"`"
             $o | Should Be "`"hello`""
         }
     }
@@ -302,7 +302,7 @@ Describe "E2E scenarios for ssh client" -Tags "CI" {
             $logFile | Should Contain "OpenSSH_"
             $logFile | Should Contain "Exit Status 0"
         }
-
+ssh
 
         It "$tC.$tI - cipher options (-c)" {
             #bad cipher

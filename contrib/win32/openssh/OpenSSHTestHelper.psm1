@@ -691,7 +691,7 @@ function Invoke-OpenSSHE2ETest
     Write-Log -Message "Running OpenSSH E2E tests..."
     # $testFolders = @(Get-ChildItem *.tests.ps1 -Recurse | ForEach-Object{ Split-Path $_.FullName} | Sort-Object -Unique)
     # Invoke-Pester $testFolders -OutputFormat NUnitXml -OutputFile $Script:E2ETestResultsFile -Tag $pri -PassThru
-    Invoke-Pester .\FileBasedLogging.tests.ps1 -OutputFormat NUnitXml -OutputFile $Script:E2ETestResultsFile -Tag $pri -PassThru
+    Invoke-Pester .\SSH.tests.ps1 -OutputFormat NUnitXml -OutputFile $Script:E2ETestResultsFile -Tag $pri -PassThru
     Pop-Location
 }
 
