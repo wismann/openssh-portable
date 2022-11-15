@@ -220,7 +220,7 @@ Describe "E2E scenarios for ssh client" -Tags "CI" {
         It "$tC.$tI - powershell as default shell and double quotes in cmdline" {
             # actual command line ssh target echo `"hello`"
             $o = ssh test_target echo `"hello`"
-            $o | Should Be "`"hello`""
+            $o | Should Be "hello"
         }
         It "$tC.$tI - multiple commands with double quotes in powershell cmdlet" -skip:$skip {
             # actual command line ssh target cd "$env:programfiles";pwd
@@ -233,7 +233,7 @@ Describe "E2E scenarios for ssh client" -Tags "CI" {
             # actual command line ssh target dir "$env:programfiles";cd "$env:programfiles";pwd
             $o = ssh test_target "dir `"`$env:programfiles\`";cd `"`$env:programfiles\`";pwd"
             $LASTEXITCODE | Should Be 0
-            #$o -contains "Program Files" | Should Be $True
+            #$o -contains "Program Files" | Shosshuld Be $True
             $match = $o -match "Program Files"
             $match.count | Should Be 3
         }
