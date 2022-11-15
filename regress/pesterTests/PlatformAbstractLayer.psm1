@@ -19,7 +19,7 @@ Enum PlatformType {
 function Set-Platform {
     # Use the .NET Core APIs to determine the current platform; if a runtime
     # exception is thrown, we are on FullCLR, not .NET Core.
-    if($IsOSX) {
+    if($IsMacOS) {
         [PlatformType]::OSX
     } elseif($IsLinux) {
         [PlatformType]::Linux
