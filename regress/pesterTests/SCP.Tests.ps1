@@ -206,7 +206,7 @@ Describe "Tests for scp command" -Tags "CI" {
         $equal = @(Compare-Object (Get-ChildItem -Recurse -path $SourceDir) (Get-ChildItem -Recurse -path (join-path $DestinationDir $SourceDirName) ) -Property Name, Length).Length -eq 0
         $equal | Should Be $true
 
-        if($Options.contains("-p ") -and ($platform -eq [PlatformType]::Windows) -and ($PSVersionTable.PSVersion.Major -gt 2))
+        if($Options.contains("-p ") -and $IsWindows -and ($PSVersionTable.PSVersion.Major -gt 2))
         {
             $equal = @(Compare-Object (Get-ChildItem -Recurse -path $SourceDir).LastWriteTime.DateTime (Get-ChildItem -Recurse -path (join-path $DestinationDir $SourceDirName) ).LastWriteTime.DateTime).Length -eq 0            
             $equal | Should Be $true
