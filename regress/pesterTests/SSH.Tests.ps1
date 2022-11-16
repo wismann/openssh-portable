@@ -302,7 +302,6 @@ Describe "E2E scenarios for ssh client" -Tags "CI" {
             $logFile | Should Contain "OpenSSH_"
             $logFile | Should Contain "Exit Status 0"
         }
-ssh
 
         It "$tC.$tI - cipher options (-c)" {
             #bad cipher
