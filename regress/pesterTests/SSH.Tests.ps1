@@ -233,7 +233,7 @@ Describe "E2E scenarios for ssh client" -Tags "CI" {
             # actual command line ssh target dir "$env:programfiles\";cd "$env:programfiles\";pwd
             $o = ssh test_target "dir `"`$env:programfiles\`";cd `"`$env:programfiles\`";pwd"
             $LASTEXITCODE | Should Be 0
-            #$o -contains "Program Files" | Shosshuld Be $True
+            #$o -contains "Program Files" | Should Be $True
             $match = $o -match "Program Files"
             $match.count | Should Be 3
         }
@@ -302,6 +302,7 @@ Describe "E2E scenarios for ssh client" -Tags "CI" {
             $logFile | Should Contain "OpenSSH_"
             $logFile | Should Contain "Exit Status 0"
         }
+
 
         It "$tC.$tI - cipher options (-c)" {
             #bad cipher
