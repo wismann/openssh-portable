@@ -344,13 +344,15 @@ local_do_shell(const char *args)
 			if (cygwin_path_prefix_start = strstr(args, CYGWIN_PATH_PREFIX)) {
 				int len = strlen(cygwin_path_prefix_start) + 1;
 				char *tmp = malloc(len);
-				memset(tmp, 0, len);
+				if (tmp != NULL) // fix CodeQL SM02313
+				{
+					memset(tmp, 0, len);
 
-				bash_to_win_path(cygwin_path_prefix_start, tmp, len);
-				strcpy_s(cygwin_path_prefix_start, len, tmp); /* override the original string */
+					bash_to_win_path(cygwin_path_prefix_start, tmp, len);
+					strcpy_s(cygwin_path_prefix_start, len, tmp); /* override the original string */
 
-				if (tmp)
 					free(tmp);
+				}
 			}
 		}
 
@@ -1050,6 +1052,10 @@ do_globbed_ls(struct sftp_conn *conn, const char *path,
 	for (nentries = 0; g.gl_pathv[nentries] != NULL; nentries++)
 		;	/* count entries */
 	indices = calloc(nentries, sizeof(*indices));
+	if (indices == NULL) // fix CodeQL SM02313
+	{
+		return -1;
+	}
 	for (i = 0; i < nentries; i++)
 		indices[i] = i;
 
@@ -1531,7 +1537,7 @@ parse_args(const char **cpp, int *ignore_errors, int *disable_echo, int *aflag,
 		if (argc - optidx < 1)
 			goto need_num_arg;
 		errno = 0;
-		ll = strtoll(argv[optidx], &cp2, base);
+		ll = strtoll(argv[optidx], &cp2, base); // CodeQL [SM02313]: strtoll will initialize cp2
 		if (cp2 == argv[optidx] || *cp2 != '\0' ||
 		    ((ll == LLONG_MIN || ll == LLONG_MAX) && errno == ERANGE) ||
 		    ll < 0 || ll > UINT32_MAX) {

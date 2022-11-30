@@ -4118,6 +4118,10 @@ private2_uudecode(struct sshbuf *blob, struct sshbuf **decodedp)
 
 	/* check preamble */
 	cp = sshbuf_ptr(blob);
+	if (cp == NULL) { // fix CodeQL SM02313
+		r = SSH_ERR_INTERNAL_ERROR;
+		goto out;
+	}
 	encoded_len = sshbuf_len(blob);
 	
 #ifdef SUPPORT_CRLF

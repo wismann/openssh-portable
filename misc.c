@@ -1151,7 +1151,7 @@ freeargs(arglist *args)
 
 #ifdef WINDOWS
 void
-duplicateargs(arglist *dest, arglist *source)
+duplicateargs(arglist *dest, const arglist *source)
 {
 	if (!source || !dest)
 		return;
@@ -1886,7 +1886,7 @@ parse_ipqos(const char *cp)
 			return ipqos[i].value;
 	}
 	/* Try parsing as an integer */
-	val = strtol(cp, &ep, 0);
+	val = strtol(cp, &ep, 0); // CodeQL [SM02313]: strtoul will initialize ep
 	if (*cp == '\0' || *ep != '\0' || val < 0 || val > 255)
 		return -1;
 	return val;
@@ -2272,7 +2272,7 @@ safe_path(const char *name, struct stat *stp, const char *pw_dir,
 		}
 
 		/* If are past the homedir then we can stop */
-		if (comparehome && strcmp(homedir, buf) == 0)
+		if (comparehome && strcmp(homedir, buf) == 0) // CodeQL [SM01714] false positive: homedir is null terminated
 			break;
 
 		/*

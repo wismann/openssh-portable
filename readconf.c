@@ -948,13 +948,13 @@ process_config_line_depth(Options *options, struct passwd *pw, const char *host,
 {
 	char *str, **charptr, *endofnumber, *keyword, *arg, *arg2, *p;
 	char **cpptr, ***cppptr, fwdarg[256];
-	u_int i, *uintptr, uvalue, max_entries = 0;
+	u_int *uintptr, uvalue, max_entries = 0;
 	int r, oactive, negated, opcode, *intptr, value, value2, cmdline = 0;
 	int remotefwd, dynamicfwd;
 	LogLevel *log_level_ptr;
 	SyslogFacility *log_facility_ptr;
 	long long val64;
-	size_t len;
+	size_t len, i; // fix CodeQL SM01735
 	struct Forward fwd;
 	const struct multistate *multistate_ptr;
 	struct allowed_cname *cname;
@@ -2081,7 +2081,7 @@ parse_pubkey_algos:
 			goto out;
 		}
 		/* Parse mode in octal format */
-		value = strtol(arg, &endofnumber, 8);
+		value = strtol(arg, &endofnumber, 8); // CodeQL [SM02313]: strtol initializes endofnumber
 		if (arg == endofnumber || value < 0 || value > 0777) {
 			error("%.200s line %d: Bad mask.", filename, linenum);
 			goto out;

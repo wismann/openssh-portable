@@ -505,35 +505,35 @@ do_init(int fd_in, int fd_out, u_int transfer_buflen, u_int num_requests,
 		    (r = sshbuf_get_string(msg, &value, &vlen)) != 0)
 			fatal_fr(r, "parse extension");
 		if (strcmp(name, "posix-rename@openssh.com") == 0 &&
-		    strcmp((char *)value, "1") == 0) {
+		    strcmp((char *)value, "1") == 0) { // CodeQL [SM01714] false positive: value is null terminated
 			ret->exts |= SFTP_EXT_POSIX_RENAME;
 			known = 1;
 		} else if (strcmp(name, "statvfs@openssh.com") == 0 &&
-		    strcmp((char *)value, "2") == 0) {
+		    strcmp((char *)value, "2") == 0) { // CodeQL [SM03650] false positive: value has not been previously freed
 			ret->exts |= SFTP_EXT_STATVFS;
 			known = 1;
 		} else if (strcmp(name, "fstatvfs@openssh.com") == 0 &&
-		    strcmp((char *)value, "2") == 0) {
+		    strcmp((char *)value, "2") == 0) { // CodeQL [SM03650] false positive: value has not been previously freed
 			ret->exts |= SFTP_EXT_FSTATVFS;
 			known = 1;
 		} else if (strcmp(name, "hardlink@openssh.com") == 0 &&
-		    strcmp((char *)value, "1") == 0) {
+		    strcmp((char *)value, "1") == 0) { // CodeQL [SM03650] false positive: value has not been previously freed
 			ret->exts |= SFTP_EXT_HARDLINK;
 			known = 1;
 		} else if (strcmp(name, "fsync@openssh.com") == 0 &&
-		    strcmp((char *)value, "1") == 0) {
+		    strcmp((char *)value, "1") == 0) { // CodeQL [SM03650] false positive: value has not been previously freed
 			ret->exts |= SFTP_EXT_FSYNC;
 			known = 1;
 		} else if (strcmp(name, "lsetstat@openssh.com") == 0 &&
-		    strcmp((char *)value, "1") == 0) {
+		    strcmp((char *)value, "1") == 0) { // CodeQL [SM03650] false positive: value has not been previously freed
 			ret->exts |= SFTP_EXT_LSETSTAT;
 			known = 1;
 		} else if (strcmp(name, "limits@openssh.com") == 0 &&
-		    strcmp((char *)value, "1") == 0) {
+		    strcmp((char *)value, "1") == 0) { // CodeQL [SM03650] false positive: value has not been previously freed
 			ret->exts |= SFTP_EXT_LIMITS;
 			known = 1;
 		} else if (strcmp(name, "expand-path@openssh.com") == 0 &&
-		    strcmp((char *)value, "1") == 0) {
+		    strcmp((char *)value, "1") == 0) { // CodeQL [SM03650] false positive: value has not been previously freed
 			ret->exts |= SFTP_EXT_PATH_EXPAND;
 			known = 1;
 		} else if (strcmp(name, "copy-data") == 0 &&
@@ -548,12 +548,12 @@ do_init(int fd_in, int fd_out, u_int transfer_buflen, u_int num_requests,
 		}
 		if (known) {
 			debug2("Server supports extension \"%s\" revision %s",
-			    name, value);
+			    name, value); // CodeQL [SM03650] false positive: value has not been previously freed
 		} else {
 			debug2("Unrecognised server extension \"%s\"", name);
 		}
 		free(name);
-		free(value);
+		free(value); // CodeQL [SM03650] false positive: value has not been previously freed
 	}
 
 	sshbuf_free(msg);
@@ -782,12 +782,12 @@ do_lsreaddir(struct sftp_conn *conn, const char *path, int print_flag,
 			if ((r = decode_attrib(msg, &a)) != 0) {
 				error_fr(r, "couldn't decode attrib");
 				free(filename);
-				free(longname);
+				free(longname); // CodeQL [SM01977]: false positive longname has not been previously freed, CodeQL [SM03650]: false positive longname has not been previously freed
 				goto out;
 			}
 
 			if (print_flag)
-				mprintf("%s\n", longname);
+				mprintf("%s\n", longname); // CodeQL[SM03650]: false positive longname has not been previously freed
 
 			/*
 			 * Directory entries should never contain '/'
@@ -801,12 +801,12 @@ do_lsreaddir(struct sftp_conn *conn, const char *path, int print_flag,
 				*dir = xreallocarray(*dir, ents + 2, sizeof(**dir));
 				(*dir)[ents] = xcalloc(1, sizeof(***dir));
 				(*dir)[ents]->filename = xstrdup(filename);
-				(*dir)[ents]->longname = xstrdup(longname);
+				(*dir)[ents]->longname = xstrdup(longname); // CodeQL [SM03650]: false positive longname has not been previously freed
 				memcpy(&(*dir)[ents]->a, &a, sizeof(a));
 				(*dir)[++ents] = NULL;
 			}
 			free(filename);
-			free(longname);
+			free(longname); // CodeQL [SM03650]: false positive longname has not been previously freed
 		}
 	}
 	status = 0;
