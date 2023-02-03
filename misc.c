@@ -1141,9 +1141,6 @@ freeargs(arglist *args)
 	if (args == NULL)
 		return;
 	if (args->list != NULL && args->num < args->nalloc) {
-	if (args == NULL)
-		return;
-	if (args->list != NULL && args->num < args->nalloc) {
 		for (i = 0; i < args->num; i++)
 			free(args->list[i]);
 		free(args->list);
