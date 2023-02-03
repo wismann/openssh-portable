@@ -1,4 +1,4 @@
-/* $OpenBSD: ssh-keygen.c,v 1.459 2022/08/11 01:56:51 djm Exp $ */
+/* $OpenBSD: ssh-keygen.c,v 1.461 2022/12/04 23:50:49 cheloha Exp $ */
 /*
  * Author: Tatu Ylonen <ylo@cs.hut.fi>
  * Copyright (c) 1994 Tatu Ylonen <ylo@cs.hut.fi>, Espoo, Finland
@@ -1943,7 +1943,11 @@ parse_hex_u64(const char *s, uint64_t *up)
 	unsigned long long ull;
 
 	errno = 0;
+<<<<<<< HEAD
 	ull = strtoull(s, &ep, 16);  // CodeQL [SM02313] false positive: strtoull will initialize ep.
+=======
+	ull = strtoull(s, &ep, 16);
+>>>>>>> 180f26288108247eb1245be68bf8d0e3fca17c3c
 	if (*s == '\0' || *ep != '\0')
 		fatal("Invalid certificate time: not a number");
 	if (errno == ERANGE && ull == ULONG_MAX)
@@ -1995,7 +1999,11 @@ parse_cert_times(char *timespec)
 		cert_valid_to = parse_relative_time(to, now);
 	else if (strcmp(to, "forever") == 0)
 		cert_valid_to = ~(u_int64_t)0;
+<<<<<<< HEAD
 	else if (strncmp(from, "0x", 2) == 0)
+=======
+	else if (strncmp(to, "0x", 2) == 0)
+>>>>>>> 180f26288108247eb1245be68bf8d0e3fca17c3c
 		parse_hex_u64(to, &cert_valid_to);
 	else if (parse_absolute_time(to, &cert_valid_to) != 0)
 		fatal("Invalid to time \"%s\"", to);
@@ -3578,7 +3586,6 @@ main(int argc, char **argv)
 			else
 				fatal("Unsupported moduli option %s", optarg);
 			break;
-		case '?':
 		default:
 			usage();
 		}
@@ -3854,6 +3861,7 @@ main(int argc, char **argv)
 		}
 		if ((attest = sshbuf_new()) == NULL)
 			fatal("sshbuf_new failed");
+<<<<<<< HEAD
 #ifndef WINDOWS
 		if ((sk_flags &
 		    (SSH_SK_USER_VERIFICATION_REQD|SSH_SK_RESIDENT_KEY))) {
@@ -3867,6 +3875,10 @@ main(int argc, char **argv)
 #endif
 		for (i = 0 ; ; i++) {
 		r = 0;
+=======
+		r = 0;
+		for (i = 0 ;;) {
+>>>>>>> 180f26288108247eb1245be68bf8d0e3fca17c3c
 			if (!quiet) {
 				printf("You may need to touch your "
 				    "authenticator%s to authorize key "
