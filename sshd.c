@@ -1350,6 +1350,7 @@ send_rexec_state(int fd, struct sshbuf *conf)
 	if ((r = sshbuf_put_stringb(m, conf)) != 0 ||
 	    (r = sshbuf_put_stringb(m, inc)) != 0)
 		fatal_fr(r, "compose config");
+
 	if (ssh_msg_send(fd, 0, m) == -1)
 		error_f("ssh_msg_send failed");
 
@@ -2020,7 +2021,7 @@ main(int ac, char **av)
 
 	/* Parse command-line arguments. */
 	while ((opt = getopt(ac, av,
-	    "C:E:b:c:f:g:h:k:o:p:u:46DQRTdeiqrtV")) != -1) {
+	    "C:E:b:c:f:g:h:k:o:p:u:46DQRTdeiqrtVyz")) != -1) {
 		switch (opt) {
 		case '4':
 			options.address_family = AF_INET;
@@ -2125,6 +2126,18 @@ main(int ac, char **av)
 			fprintf(stderr, "%s, %s\n",
 			    SSH_VERSION, SSH_OPENSSL_VERSION);
 			exit(0);
+		case 'y':
+			privsep_unauth_child = 1;
+			rexec_flag = 0;
+			logfile = NULL;
+			//Sleep(10 * 1000);
+			break;
+		case 'z':
+			privsep_auth_child = 1;
+			rexec_flag = 0;
+			logfile = NULL;
+			//Sleep(10 * 1000);
+			break;
 		default:
 			usage();
 			break;

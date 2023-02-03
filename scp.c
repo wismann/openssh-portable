@@ -391,6 +391,15 @@ do_cmd(char *program, char *host, char *remuser, int port, int subsystem,
 	}
 
 	freeargs(&args_dup);
+	/* Parent.  Close the other side, and return the local side. */
+	close(pin[0]);
+	close(pout[1]);
+	*fdout = pin[1];
+	*fdin = pout[0];
+	ssh_signal(SIGTERM, killchild);
+	ssh_signal(SIGINT, killchild);
+	ssh_signal(SIGHUP, killchild);
+	return 0;
 #else
 	*pid = fork();
 	switch (*pid) {
@@ -452,6 +461,7 @@ do_cmd(char *program, char *host, char *remuser, int port, int subsystem,
 		ssh_signal(SIGHUP, killchild);
 		return 0;
 	}
+#endif
 }
 
 /*
