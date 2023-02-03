@@ -344,6 +344,10 @@ do_cmd(char *program, char *host, char *remuser, int port, int subsystem,
 #ifdef USE_PIPES
 	if (pipe(pin) == -1 || pipe(pout) == -1)
 		fatal("pipe: %s", strerror(errno));
+	fcntl(pout[0], F_SETFD, FD_CLOEXEC);
+	fcntl(pout[1], F_SETFD, FD_CLOEXEC);
+	fcntl(pin[0], F_SETFD, FD_CLOEXEC);
+	fcntl(pin[1], F_SETFD, FD_CLOEXEC);
 #else
 	/* Create a socket pair for communicating with ssh. */
 	if (socketpair(AF_UNIX, SOCK_STREAM, 0, sv) == -1)
