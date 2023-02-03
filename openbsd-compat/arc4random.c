@@ -98,11 +98,6 @@ _rs_init(u_char *buf, size_t n)
 	if (n < KEYSZ + IVSZ)
 		return;
 
-	if (rs == NULL) {
-		if (_rs_allocate(&rs, &rsx) == -1)
-			_exit(1);
-	}
-
 #ifndef WITH_OPENSSL
 #ifdef WINDOWS
 #include <Wincrypt.h>
@@ -139,11 +134,17 @@ getrnd(u_char *s, size_t len)
 			return;
 		fatal("Couldn't open %s: %s", SSH_RANDOM_DEV,
 		    strerror(save_errno));
+
+	if (rs == NULL) {
+		if (_rs_allocate(&rs, &rsx) == -1)
+			_exit(1);
 	}
 
 	chacha_keysetup(&rsx->rs_chacha, buf, KEYSZ * 8);
 	chacha_ivsetup(&rsx->rs_chacha, buf + KEYSZ);
 }
+#endif /* !WINDOWS */
+#endif /* WITH_OPENSSL */
 
 static void
 _rs_stir(void)
@@ -289,4 +290,3 @@ arc4random_buf(void *_buf, size_t n)
 	explicit_bzero(&r, sizeof(r));
 }
 #endif /* !defined(HAVE_ARC4RANDOM_BUF) && defined(HAVE_ARC4RANDOM) */
-
