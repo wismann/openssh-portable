@@ -2020,11 +2020,7 @@ main(int ac, char **av)
 
 	/* Parse command-line arguments. */
 	while ((opt = getopt(ac, av,
-<<<<<<< HEAD
-	    "C:E:b:c:f:g:h:k:o:p:u:46DQRTdeiqrtyz")) != -1) {
-=======
 	    "C:E:b:c:f:g:h:k:o:p:u:46DQRTdeiqrtV")) != -1) {
->>>>>>> 180f26288108247eb1245be68bf8d0e3fca17c3c
 		switch (opt) {
 		case '4':
 			options.address_family = AF_INET;
@@ -2125,26 +2121,10 @@ main(int ac, char **av)
 				exit(1);
 			free(line);
 			break;
-<<<<<<< HEAD
-		case 'y':
-			privsep_unauth_child = 1;
-			rexec_flag = 0;
-			logfile = NULL;
-			//Sleep(10 * 1000);
-			break;
-		case 'z':
-			privsep_auth_child = 1;
-			rexec_flag = 0;
-			logfile = NULL;
-			//Sleep(10 * 1000);
-			break;
-		case '?':
-=======
 		case 'V':
 			fprintf(stderr, "%s, %s\n",
 			    SSH_VERSION, SSH_OPENSSL_VERSION);
 			exit(0);
->>>>>>> 180f26288108247eb1245be68bf8d0e3fca17c3c
 		default:
 			usage();
 			break;
