@@ -184,7 +184,12 @@ pid_t do_cmd_pid = -1;
 pid_t do_cmd_pid2 = -1;
 
 /* SFTP copy parameters */
+#ifdef WINDOWS
+// match DEFAULT_COPY_BUFLEN from sftp-client.c unless overriden below with -X input
+size_t sftp_copy_buflen = 32768; 
+#else
 size_t sftp_copy_buflen;
+#endif // WINDOWS
 size_t sftp_nrequests;
 
 /* Needed for sftp */
@@ -770,6 +775,16 @@ main(int argc, char **argv)
 					     optarg + 7, strerror(errno));
 				}
 				sftp_copy_buflen = (size_t)llv;
+#ifdef WINDOWS
+				size_t max_sftp_buf_len = 204800;
+				if (sftp_copy_buflen > max_sftp_buf_len) {
+					if (verbose_mode)
+						fmprintf(stderr,
+							"Buffer value of %d is too large for Win32-OpenSSH. Setting buffer to %d\n", 
+							sftp_copy_buflen, max_sftp_buf_len);
+					sftp_copy_buflen = max_sftp_buf_len;
+				}
+#endif // WINDOWS
 			} else if (strncmp(optarg, "nrequests=", 10) == 0) {
 				llv = strtonum(optarg + 10, 1, 256 * 1024,
 				    &errstr);
@@ -1199,7 +1214,7 @@ do_sftp_connect(char *host, char *user, int port, char *sftp_direct,
 	get_zone_identifier(host);
 #endif // WINDOWS
 	return do_init(*reminp, *remoutp,
-	    sftp_copy_buflen, sftp_nrequests, limit_kbps);
+		sftp_copy_buflen, sftp_nrequests, limit_kbps);
 }
 
 void
