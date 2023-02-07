@@ -9,15 +9,6 @@ if [ "$os" == "windows" ]; then
 	exit 0
 fi
 
-FWDPORT=`expr $PORT + 1`
-
-if have_prog nc && nc -h 2>&1 | grep "proxy address" >/dev/null; then
-	proxycmd="nc -x 127.0.0.1:$FWDPORT -X"
-elif have_prog connect; then
-	proxycmd="connect -S 127.0.0.1:$FWDPORT -"
-else
-	echo "skipped (no suitable ProxyCommand found)"
-	exit 0
 # This is a reasonable proxy for IPv6 support.
 if ! config_defined HAVE_STRUCT_IN6_ADDR ; then
 	SKIP_IPV6=yes
