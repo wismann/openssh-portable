@@ -58,7 +58,7 @@ for mode in scp sftp ; do
 
 	verbose "$tag: simple copy remote file to local file"
 	scpclean
-	$SCP "${scpopts[@]}" somehost:${DATA} ${COPY} || fail "copy failed"
+	$SCP -vvv "${scpopts[@]}" somehost:${DATA} ${COPY} || fail "copy failed"
 	cmp ${DATA} ${COPY} || fail "corrupted copy"
 
 	# In place tests will not work on Windows because of simultaneous read of/write to file
@@ -86,31 +86,6 @@ for mode in scp sftp ; do
 	scpclean
 	cat ${DATA} ${DATA} > ${COPY}
 	$SCP "${scpopts[@]}" somehost:${DATA} ${COPY} || fail "copy failed"
-	cmp ${DATA} ${COPY} || fail "corrupted copy"
-
-	verbose "$tag: copy local file to remote file in place"
-	scpclean
-	cp ${DATA} ${COPY}
-	$SCP $scpopts ${COPY} somehost:${COPY} || fail "copy failed"
-	cmp ${DATA} ${COPY} || fail "corrupted copy"
-
-	verbose "$tag: copy remote file to local file in place"
-	scpclean
-	cp ${DATA} ${COPY}
-	$SCP $scpopts somehost:${COPY} ${COPY} || fail "copy failed"
-	cmp ${DATA} ${COPY} || fail "corrupted copy"
-
-	verbose "$tag: copy local file to remote file clobber"
-	scpclean
-	cat ${DATA} ${DATA} > ${COPY}
-	$SCP $scpopts ${DATA} somehost:${COPY} || fail "copy failed"
-	ls -l $DATA $COPY
-	cmp ${DATA} ${COPY} || fail "corrupted copy"
-
-	verbose "$tag: copy remote file to local file clobber"
-	scpclean
-	cat ${DATA} ${DATA} > ${COPY}
-	$SCP $scpopts somehost:${DATA} ${COPY} || fail "copy failed"
 	cmp ${DATA} ${COPY} || fail "corrupted copy"
 
 	verbose "$tag: simple copy local file to remote dir"
@@ -154,12 +129,12 @@ for mode in scp sftp ; do
 
 	verbose "$tag: unmatched glob file local->remote"
 	scpclean
-	$SCP $scpopts ${DATA} somehost:${COPY3} || fail "copy failed"
+	$SCP "${scpopts[@]}" ${DATA} somehost:${COPY3} || fail "copy failed"
 	cmp ${DATA} ${COPY3} || fail "corrupted copy"
 
 	verbose "$tag: unmatched glob file remote->local"
 	# NB. no clean
-	$SCP $scpopts somehost:${COPY3} ${COPY2} || fail "copy failed"
+	$SCP "${scpopts[@]}" somehost:${COPY3} ${COPY2} || fail "copy failed"
 	cmp ${DATA} ${COPY2} || fail "corrupted copy"
 
 	verbose "$tag: unmatched glob dir recursive local->remote"
@@ -167,13 +142,13 @@ for mode in scp sftp ; do
 	rm -rf ${DIR3}
 	cp ${DATA} ${DIR}/copy
 	cp ${DATA} ${DIR}/copy.glob[1234]
-	$SCP $scpopts -r ${DIR} somehost:${DIR3} || fail "copy failed"
+	$SCP "${scpopts[@]}" -r ${DIR} somehost:${DIR3} || fail "copy failed"
 	diff ${DIFFOPT} ${DIR} ${DIR3} || fail "corrupted copy"
 
 	verbose "$tag: unmatched glob dir recursive remote->local"
 	# NB. no clean
 	rm -rf ${DIR2}
-	$SCP $scpopts -r somehost:${DIR3} ${DIR2} || fail "copy failed"
+	$SCP "${scpopts[@]}" -r somehost:${DIR3} ${DIR2} || fail "copy failed"
 	diff ${DIFFOPT} ${DIR} ${DIR2} || fail "corrupted copy"
 
 	verbose "$tag: shell metacharacters"
@@ -237,5 +212,5 @@ for mode in scp sftp ; do
 	cmp ${COPY} ${COPY2} >/dev/null && fail "corrupt target"
 done
 
-scpclean
+#scpclean
 rm -f ${OBJ}/scp-ssh-wrapper.scp
