@@ -185,6 +185,11 @@ pid_t do_cmd_pid2 = -1;
 
 /* SFTP copy parameters */
 #ifdef WINDOWS
+/* 
+* Since MODE_SFTP calls do_download with inplace_flag=1,
+* need to initialize buf to standard value and not exceed 204800
+* in order to prevent file truncation 
+*/
 #define MAX_SFTP_COPY_BUFLEN 204800
 #define DEFAULT_COPY_BUFLEN 32768
 size_t sftp_copy_buflen = DEFAULT_COPY_BUFLEN;
