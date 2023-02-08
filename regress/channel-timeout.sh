@@ -9,7 +9,7 @@ rm -f $OBJ/sshd_proxy.orig
 cp $OBJ/sshd_proxy $OBJ/sshd_proxy.orig
 
 verbose "no timeout"
-${SSH} -vvv -F $OBJ/ssh_proxy somehost "sleep 5 ; exit 23"
+${SSH} -F $OBJ/ssh_proxy somehost "sleep 5 ; exit 23"
 r=$?
 if [ $r -ne 23 ]; then
 	fail "ssh failed"
@@ -19,7 +19,7 @@ verbose "command timeout"
 (cat $OBJ/sshd_proxy.orig ; echo "ChannelTimeout session:command=1") \
 	> $OBJ/sshd_proxy
 verbose "${SSH} -vvv -F $OBJ/ssh_proxy somehost"
-${SSH} -vvv -F $OBJ/ssh_proxy somehost "sleep 5 ; exit 23"
+${SSH} -F $OBJ/ssh_proxy somehost "sleep 5 ; exit 23"
 r=$?
 # return value is -1 which is being mapped back to 127 instead of 255 for some reason
 if [ $r -ne 127 ]; then
