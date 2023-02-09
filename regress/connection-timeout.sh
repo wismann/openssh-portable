@@ -2,7 +2,7 @@
 #	Placed in the Public Domain.
 
 if [ "$os" == "windows" ]; then
-	# Windows, -oControlMaster not supported, but ConnectionTimeout is valid
+	# Win32-OpenSSH does not support -oControlMaster
 	echo "skipped, multiplexing not supported on windows OS"
 	exit 0
 fi
