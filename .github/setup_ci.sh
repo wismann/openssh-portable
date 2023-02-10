@@ -139,29 +139,16 @@ if [ "yes" = "$INSTALL_FIDO_PPA" ]; then
     sudo apt-add-repository -y ppa:yubico/stable
 fi
 
-tries=3
-while [ ! -z "$PACKAGES" ] && [ "$tries" -gt "0" ]; do
+if [ "x" != "x$PACKAGES" ]; then
     case "$PACKAGER" in
     apt)
 	sudo apt update -qq
-	if sudo apt install -qy $PACKAGES; then
-		PACKAGES=""
-	fi
+	sudo apt install -qy $PACKAGES
 	;;
     setup)
-	if /cygdrive/c/setup.exe -q -P `echo "$PACKAGES" | tr ' ' ,`; then
-		PACKAGES=""
-	fi
+	/cygdrive/c/setup.exe -q -P `echo "$PACKAGES" | tr ' ' ,`
 	;;
     esac
-    if [ ! -z "$PACKAGES" ]; then
-	sleep 90
-    fi
-    tries=$(($tries - 1))
-done
-if [ ! -z "$PACKAGES" ]; then
-	echo "Package installation failed."
-	exit 1
 fi
 
 if [ "${INSTALL_HARDENED_MALLOC}" = "yes" ]; then

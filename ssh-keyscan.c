@@ -1,4 +1,4 @@
-/* $OpenBSD: ssh-keyscan.c,v 1.149 2022/12/26 19:16:03 jmc Exp $ */
+/* $OpenBSD: ssh-keyscan.c,v 1.146 2022/08/19 04:02:46 dtucker Exp $ */
 /*
  * Copyright 1995, 1996 by David Mazieres <dm@lcs.mit.edu>.
  *
@@ -52,7 +52,6 @@
 #include "ssherr.h"
 #include "ssh_api.h"
 #include "dns.h"
-#include "addr.h"
 
 /* Flag indicating whether IPv4 or IPv6.  This can be set on the command line.
    Default value is AF_UNSPEC means both IPv4 and IPv6. */
@@ -385,7 +384,7 @@ tcpconnect(char *host)
 }
 
 static int
-conalloc(const char *iname, const char *oname, int keytype)
+conalloc(char *iname, char *oname, int keytype)
 {
 	char *namebase, *name, *namelist;
 	int s;
@@ -493,7 +492,7 @@ congreet(int s)
 
 	/*
 	 * Read the server banner as per RFC4253 section 4.2.  The "SSH-"
-	 * protocol identification string may be preceeded by an arbitrarily
+	 * protocol identification string may be preceeded by an arbitarily
 	 * large banner which we must read and ignore.  Loop while reading
 	 * newline-terminated lines until we have one starting with "SSH-".
 	 * The ID string cannot be longer than 255 characters although the
@@ -630,7 +629,7 @@ conloop(void)
 }
 
 static void
-do_one_host(char *host)
+do_host(char *host)
 {
 	char *name = strnnsep(&host, " \t\n");
 	int j;
@@ -643,42 +642,6 @@ do_one_host(char *host)
 				conloop();
 			conalloc(name, *host ? host : name, j);
 		}
-	}
-}
-
-static void
-do_host(char *host)
-{
-	char daddr[128];
-	struct xaddr addr, end_addr;
-	u_int masklen;
-
-	if (host == NULL)
-		return;
-	if (addr_pton_cidr(host, &addr, &masklen) != 0) {
-		/* Assume argument is a hostname */
-		do_one_host(host);
-	} else {
-		/* Argument is a CIDR range */
-		debug("CIDR range %s", host);
-		end_addr = addr;
-		if (addr_host_to_all1s(&end_addr, masklen) != 0)
-			goto badaddr;
-		/*
-		 * Note: we deliberately include the all-zero/ones addresses.
-		 */
-		for (;;) {
-			if (addr_ntop(&addr, daddr, sizeof(daddr)) != 0) {
- badaddr:
-				error("Invalid address %s", host);
-				return;
-			}
-			debug("CIDR expand: address %s", daddr);
-			do_one_host(daddr);
-			if (addr_cmp(&addr, &end_addr) == 0)
-				break;
-			addr_increment(&addr);
-		};
 	}
 }
 
@@ -807,6 +770,7 @@ main(int argc, char **argv)
 		case '6':
 			IPv4or6 = AF_INET6;
 			break;
+		case '?':
 		default:
 			usage();
 		}

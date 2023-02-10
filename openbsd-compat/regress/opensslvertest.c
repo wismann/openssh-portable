@@ -56,7 +56,6 @@ fail(long hver, long lver, int result)
 int
 main(void)
 {
-#ifdef WITH_OPENSSL
 	unsigned int i;
 	int res;
 	long hver, lver;
@@ -68,6 +67,5 @@ main(void)
 		if (ssh_compatible_openssl(hver, lver) != res)
 			fail(hver, lver, res);
 	}
-#endif
 	exit(0);
 }

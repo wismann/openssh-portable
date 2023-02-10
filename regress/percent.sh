@@ -1,4 +1,4 @@
-#	$OpenBSD: percent.sh,v 1.16 2023/01/14 09:57:08 dtucker Exp $
+#	$OpenBSD: percent.sh,v 1.14 2022/02/20 03:47:26 dtucker Exp $
 #	Placed in the Public Domain.
 
 tid="percent expansions"
@@ -12,7 +12,6 @@ USER=`id -u -n`
 USERID=`id -u`
 HOST=`hostname | cut -f1 -d.`
 HOSTNAME=`hostname`
-HASH=""
 
 # Localcommand is evaluated after connection because %T is not available
 # until then.  Because of this we use a different method of exercising it,
@@ -80,12 +79,10 @@ for i in matchexec localcommand remotecommand controlpath identityagent \
 		trial $i '%T' NONE
 	fi
 	# Matches implementation in readconf.c:ssh_connection_hash()
-	if [ ! -z "${OPENSSL_BIN}" ]; then
-		HASH=`printf "${HOSTNAME}127.0.0.1${PORT}$REMUSER" |
-		    $OPENSSL_BIN sha1 | cut -f2 -d' '`
-		trial $i '%C' $HASH
-	fi
+	HASH=`printf "${HOSTNAME}127.0.0.1${PORT}$REMUSER" |
+	    $OPENSSL_BIN sha1 | cut -f2 -d' '`
 	trial $i '%%' '%'
+	trial $i '%C' $HASH
 	trial $i '%i' $USERID
 	trial $i '%h' 127.0.0.1
 	trial $i '%L' $HOST
@@ -99,13 +96,8 @@ for i in matchexec localcommand remotecommand controlpath identityagent \
 	# containing %d for UserKnownHostsFile
 	if [ "$i" != "userknownhostsfile" ]; then
 		trial $i '%d' $HOME
-		in='%%/%i/%h/%d/%L/%l/%n/%p/%r/%u'
-		out="%/$USERID/127.0.0.1/$HOME/$HOST/$HOSTNAME/somehost/$PORT/$REMUSER/$USER"
-		if [ ! -z "${HASH}" ]; then
-			in="$in/%C"
-			out="$out/$HASH"
-		fi
-		trial $i "$in" "$out"
+		trial $i '%%/%C/%i/%h/%d/%L/%l/%n/%p/%r/%u' \
+		    "%/$HASH/$USERID/127.0.0.1/$HOME/$HOST/$HOSTNAME/somehost/$PORT/$REMUSER/$USER"
 	fi
 done
 
