@@ -70,11 +70,8 @@ getcwd(char *pt, size_t size)
 	 */
 	if (pt) {
 		ptsize = 0;
-		if (size == 0) {
+		if (!size) {
 			errno = EINVAL;
-			return (NULL);
-		} else if (size == 1) {
-			errno = ERANGE;
 			return (NULL);
 		}
 		ept = pt + size;

@@ -1,4 +1,4 @@
-/* $OpenBSD: sftp-common.h,v 1.13 2022/09/19 10:41:58 djm Exp $ */
+/* $OpenBSD: sftp-common.h,v 1.12 2015/01/14 13:54:13 djm Exp $ */
 
 /*
  * Copyright (c) 2001 Markus Friedl.  All rights reserved.
@@ -47,7 +47,6 @@ void	 stat_to_attrib(const struct stat *, Attrib *);
 void	 attrib_to_stat(const Attrib *, struct stat *);
 int	 decode_attrib(struct sshbuf *, Attrib *);
 int	 encode_attrib(struct sshbuf *, const Attrib *);
-char	*ls_file(const char *, const struct stat *, int, int,
-    const char *, const char *);
+char	*ls_file(const char *, const struct stat *, int, int);
 
 const char *fx2txt(int);

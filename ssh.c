@@ -1,4 +1,4 @@
-/* $OpenBSD: ssh.c,v 1.576 2022/09/17 10:33:18 djm Exp $ */
+/* $OpenBSD: ssh.c,v 1.573 2022/02/08 08:59:12 dtucker Exp $ */
 /*
  * Author: Tatu Ylonen <ylo@cs.hut.fi>
  * Copyright (c) 1995 Tatu Ylonen <ylo@cs.hut.fi>, Espoo, Finland
@@ -516,22 +516,14 @@ resolve_canonicalize(char **hostp, int port)
 }
 
 /*
- * Check the result of hostkey loading, ignoring some errors and either
- * discarding the key or fatal()ing for others.
+ * Check the result of hostkey loading, ignoring some errors and
+ * fatal()ing for others.
  */
 static void
-check_load(int r, struct sshkey **k, const char *path, const char *message)
+check_load(int r, const char *path, const char *message)
 {
 	switch (r) {
 	case 0:
-		/* Check RSA keys size and discard if undersized */
-		if (k != NULL && *k != NULL &&
-		    (r = sshkey_check_rsa_length(*k,
-		    options.required_rsa_size)) != 0) {
-			error_r(r, "load %s \"%s\"", message, path);
-			free(*k);
-			*k = NULL;
-		}
 		break;
 	case SSH_ERR_INTERNAL_ERROR:
 	case SSH_ERR_ALLOC_FAIL:
@@ -715,7 +707,7 @@ main(int ac, char **av)
 
  again:
 	while ((opt = getopt(ac, av, "1246ab:c:e:fgi:kl:m:no:p:qstvx"
-	    "AB:CD:E:F:GI:J:KL:MNO:PQ:R:S:TVw:W:XYy")) != -1) { /* HUZdhjruz */
+	    "AB:CD:E:F:GI:J:KL:MNO:PQ:R:S:TVw:W:XYy")) != -1) {
 		switch (opt) {
 		case '1':
 			fatal("SSH protocol v.1 is no longer supported");
@@ -1142,8 +1134,6 @@ main(int ac, char **av)
 				fatal_fr(r, "buffer error");
 		}
 	}
-
-	ssh_signal(SIGPIPE, SIG_IGN); /* ignore SIGPIPE early */
 
 	/*
 	 * Initialize "log" output.  Since we are the client all output
@@ -1603,7 +1593,7 @@ main(int ac, char **av)
 	if ((o) >= sensitive_data.nkeys) \
 		fatal_f("pubkey out of array bounds"); \
 	check_load(sshkey_load_public(p, &(sensitive_data.keys[o]), NULL), \
-	    &(sensitive_data.keys[o]), p, "pubkey"); \
+	    p, "pubkey"); \
 	if (sensitive_data.keys[o] != NULL) \
 		debug2("hostbased key %d: %s key from \"%s\"", o, \
 		    sshkey_ssh_name(sensitive_data.keys[o]), p); \
@@ -1611,8 +1601,7 @@ main(int ac, char **av)
 #define L_CERT(p,o) do { \
 	if ((o) >= sensitive_data.nkeys) \
 		fatal_f("cert out of array bounds"); \
-	check_load(sshkey_load_cert(p, &(sensitive_data.keys[o])), \
-	    &(sensitive_data.keys[o]), p, "cert"); \
+	check_load(sshkey_load_cert(p, &(sensitive_data.keys[o])), p, "cert"); \
 	if (sensitive_data.keys[o] != NULL) \
 		debug2("hostbased key %d: %s cert from \"%s\"", o, \
 		    sshkey_ssh_name(sensitive_data.keys[o]), p); \
@@ -1680,6 +1669,7 @@ main(int ac, char **av)
 	    options.num_system_hostfiles);
 	tilde_expand_paths(options.user_hostfiles, options.num_user_hostfiles);
 
+	ssh_signal(SIGPIPE, SIG_IGN); /* ignore SIGPIPE early */
 	ssh_signal(SIGCHLD, main_sigchld_handler);
 
 	/* Log into the remote system.  Never returns if the login fails. */
@@ -2291,7 +2281,7 @@ load_public_identity_files(const struct ssh_conn_info *cinfo)
 		filename = default_client_percent_dollar_expand(cp, cinfo);
 		free(cp);
 		check_load(sshkey_load_public(filename, &public, NULL),
-		    &public, filename, "pubkey");
+		    filename, "pubkey");
 		debug("identity file %s type %d", filename,
 		    public ? public->type : -1);
 		free(options.identity_files[i]);
@@ -2310,7 +2300,7 @@ load_public_identity_files(const struct ssh_conn_info *cinfo)
 			continue;
 		xasprintf(&cp, "%s-cert", filename);
 		check_load(sshkey_load_public(cp, &public, NULL),
-		    &public, filename, "pubkey");
+		    filename, "pubkey");
 		debug("identity file %s type %d", cp,
 		    public ? public->type : -1);
 		if (public == NULL) {
@@ -2341,7 +2331,7 @@ load_public_identity_files(const struct ssh_conn_info *cinfo)
 		free(cp);
 
 		check_load(sshkey_load_public(filename, &public, NULL),
-		    &public, filename, "certificate");
+		    filename, "certificate");
 		debug("certificate file %s type %d", filename,
 		    public ? public->type : -1);
 		free(options.certificate_files[i]);

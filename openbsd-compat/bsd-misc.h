@@ -62,7 +62,7 @@ struct timeval {
 }
 #endif /* HAVE_STRUCT_TIMEVAL */
 
-int utimes(const char *, struct timeval *);
+int utimes(char *, struct timeval *);
 #endif /* HAVE_UTIMES */
 
 #ifndef AT_FDCWD

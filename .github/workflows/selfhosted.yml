@@ -2,8 +2,7 @@ name: C/C++ CI self-hosted
 
 on:
   push:
-    branches: [ master, ci, V_9_0 ]
-    paths: [ '**.c', '**.h', '**.m4', '**.sh', '.github/**', 'Makefile.in', 'configure.ac' ]
+    branches: [ master, ci ]
 
 jobs:
   selfhosted:
@@ -17,16 +16,14 @@ jobs:
       # default config.  "os" corresponds to a label associated with the worker.
       matrix:
         os:
-          - aix51
-          - ARM
           - ARM64
           - alpine
-          - debian-i386
-          - debian-riscv64
+          - bbone
           - dfly30
           - dfly48
           - dfly58
           - dfly60
+          - fbsd6
           - fbsd10
           - fbsd12
           - fbsd13
@@ -43,8 +40,6 @@ jobs:
           - obsd70
           - obsdsnap
           - openindiana
-          - openwrt-mips
-          - openwrt-mipsel
           # - rocky84
           - sol10
           - sol11
@@ -54,11 +49,11 @@ jobs:
         # Then we include any extra configs we want to test for specific VMs.
         include:
           - { os: ARM64,  configs: pam }
-          - { os: debian-i386, configs: pam }
           - { os: dfly30, configs: without-openssl}
           - { os: dfly48, configs: pam }
           - { os: dfly58, configs: pam }
           - { os: dfly60, configs: pam }
+          - { os: fbsd6,  configs: pam }
           - { os: fbsd10, configs: pam }
           - { os: fbsd12, configs: pam }
           - { os: fbsd13, configs: pam }
@@ -72,11 +67,11 @@ jobs:
           # - { os: sol11,  configs: sol64-pam }
           - { os: win10,  configs: cygwin-release }
     steps:
-    - name: shutdown VM if running
-      run: vmshutdown
     - uses: actions/checkout@v2
     - name: autoreconf
       run: autoreconf
+    - name: shutdown VM if running
+      run: vmshutdown
     - name: startup VM
       run: vmstartup
     - name: configure
@@ -92,7 +87,7 @@ jobs:
       run: vmrun make
     - name: make tests
       run: vmrun ./.github/run_test.sh ${{ matrix.configs }}
-      timeout-minutes: 600
+      timeout-minutes: 300
     - name: save logs
       if: failure()
       uses: actions/upload-artifact@v2

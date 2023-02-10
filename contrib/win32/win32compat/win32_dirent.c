@@ -269,26 +269,13 @@ char *
 basename(char *path)
 {
 	char *pdest;
-	const char *endp;
-	static char bname[PATH_MAX];
-
-	/* Find any trailing slashes */
-	endp = path + strlen(path) - 1;
-	while (endp > path && (*endp == '/' || *endp == '\\'))
-		endp--;
-
-	int path_len = endp - path + 1;
-	if (strncpy_s(bname, PATH_MAX, path, path_len + 1)) {
-		return NULL;
-	}
-	bname[path_len] = '\0';
 
 	if (!path)
 		return ".";
-	pdest = strrchr(bname, '/');
+	pdest = strrchr(path, '/');
 	if (pdest)
 		return (pdest + 1);
-	pdest = strrchr(bname, '\\');
+	pdest = strrchr(path, '\\');
 	if (pdest)
 		return (pdest + 1);
 

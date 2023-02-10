@@ -1,4 +1,4 @@
-/* $OpenBSD: sshkey.c,v 1.122 2022/09/17 10:30:45 djm Exp $ */
+/* $OpenBSD: sshkey.c,v 1.120 2022/01/06 22:05:42 djm Exp $ */
 /*
  * Copyright (c) 2000, 2001 Markus Friedl.  All rights reserved.
  * Copyright (c) 2008 Alexander von Gernler.  All rights reserved.
@@ -2134,38 +2134,14 @@ sshkey_shield_private(struct sshkey *k)
 	return r;
 }
 
-/* Check deterministic padding after private key */
-static int
-private2_check_padding(struct sshbuf *decrypted)
-{
-	u_char pad;
-	size_t i;
-	int r;
-
-	i = 0;
-	while (sshbuf_len(decrypted)) {
-		if ((r = sshbuf_get_u8(decrypted, &pad)) != 0)
-			goto out;
-		if (pad != (++i & 0xff)) {
-			r = SSH_ERR_INVALID_FORMAT;
-			goto out;
-		}
-	}
-	/* success */
-	r = 0;
- out:
-	explicit_bzero(&pad, sizeof(pad));
-	explicit_bzero(&i, sizeof(i));
-	return r;
-}
-
 int
 sshkey_unshield_private(struct sshkey *k)
 {
 	struct sshbuf *prvbuf = NULL;
-	u_char *cp, keyiv[SSH_DIGEST_MAX_LENGTH];
+	u_char pad, *cp, keyiv[SSH_DIGEST_MAX_LENGTH];
 	struct sshcipher_ctx *cctx = NULL;
 	const struct sshcipher *cipher;
+	size_t i;
 	struct sshkey *kswap = NULL, tmp;
 	int r = SSH_ERR_INTERNAL_ERROR;
 
@@ -2227,9 +2203,16 @@ sshkey_unshield_private(struct sshkey *k)
 	/* Parse private key */
 	if ((r = sshkey_private_deserialize(prvbuf, &kswap)) != 0)
 		goto out;
-
-	if ((r = private2_check_padding(prvbuf)) != 0)
-		goto out;
+	/* Check deterministic padding */
+	i = 0;
+	while (sshbuf_len(prvbuf)) {
+		if ((r = sshbuf_get_u8(prvbuf, &pad)) != 0)
+			goto out;
+		if (pad != (++i & 0xff)) {
+			r = SSH_ERR_INVALID_FORMAT;
+			goto out;
+		}
+	}
 
 	/* Swap the parsed key back into place */
 	tmp = *kswap;
@@ -2374,24 +2357,18 @@ cert_parse(struct sshbuf *b, struct sshkey *key, struct sshbuf *certbuf)
 	return ret;
 }
 
-int
-sshkey_check_rsa_length(const struct sshkey *k, int min_size)
-{
 #ifdef WITH_OPENSSL
+static int
+check_rsa_length(const RSA *rsa)
+{
 	const BIGNUM *rsa_n;
-	int nbits;
 
-	if (k == NULL || k->rsa == NULL ||
-	    (k->type != KEY_RSA && k->type != KEY_RSA_CERT))
-		return 0;
-	RSA_get0_key(k->rsa, &rsa_n, NULL, NULL);
-	nbits = BN_num_bits(rsa_n);
-	if (nbits < SSH_RSA_MINIMUM_MODULUS_SIZE ||
-	    (min_size > 0 && nbits < min_size))
+	RSA_get0_key(rsa, &rsa_n, NULL, NULL);
+	if (BN_num_bits(rsa_n) < SSH_RSA_MINIMUM_MODULUS_SIZE)
 		return SSH_ERR_KEY_LENGTH;
-#endif /* WITH_OPENSSL */
 	return 0;
 }
+#endif
 
 static int
 sshkey_from_blob_internal(struct sshbuf *b, struct sshkey **keyp,
@@ -2454,7 +2431,7 @@ sshkey_from_blob_internal(struct sshbuf *b, struct sshkey **keyp,
 			goto out;
 		}
 		rsa_n = rsa_e = NULL; /* transferred */
-		if ((ret = sshkey_check_rsa_length(key, 0)) != 0)
+		if ((ret = check_rsa_length(key->rsa)) != 0)
 			goto out;
 #ifdef DEBUG_PK
 		RSA_print_fp(stderr, key->rsa, 8);
@@ -3686,7 +3663,7 @@ sshkey_private_deserialize(struct sshbuf *buf, struct sshkey **kp)
 			goto out;
 		}
 		rsa_p = rsa_q = NULL; /* transferred */
-		if ((r = sshkey_check_rsa_length(k, 0)) != 0)
+		if ((r = check_rsa_length(k->rsa)) != 0)
 			goto out;
 		if ((r = ssh_rsa_complete_crt_parameters(k, rsa_iqmp)) != 0)
 			goto out;
@@ -4089,9 +4066,9 @@ sshkey_private_to_blob2(struct sshkey *prv, struct sshbuf *blob,
 	explicit_bzero(salt, sizeof(salt));
 	if (key != NULL)
 		freezero(key, keylen + ivlen);
-	if (pubkeyblob != NULL)
+	if (pubkeyblob != NULL) 
 		freezero(pubkeyblob, pubkeylen);
-	if (b64 != NULL)
+	if (b64 != NULL) 
 		freezero(b64, strlen(b64));
 	return r;
 }
@@ -4334,6 +4311,31 @@ private2_decrypt(struct sshbuf *decoded, const char *passphrase,
 	}
 	sshbuf_free(kdf);
 	sshbuf_free(decrypted);
+	return r;
+}
+
+/* Check deterministic padding after private key */
+static int
+private2_check_padding(struct sshbuf *decrypted)
+{
+	u_char pad;
+	size_t i;
+	int r = SSH_ERR_INTERNAL_ERROR;
+
+	i = 0;
+	while (sshbuf_len(decrypted)) {
+		if ((r = sshbuf_get_u8(decrypted, &pad)) != 0)
+			goto out;
+		if (pad != (++i & 0xff)) {
+			r = SSH_ERR_INVALID_FORMAT;
+			goto out;
+		}
+	}
+	/* success */
+	r = 0;
+ out:
+	explicit_bzero(&pad, sizeof(pad));
+	explicit_bzero(&i, sizeof(i));
 	return r;
 }
 
@@ -4707,7 +4709,7 @@ sshkey_parse_private_pem_fileblob(struct sshbuf *blob, int type,
 			r = SSH_ERR_LIBCRYPTO_ERROR;
 			goto out;
 		}
-		if ((r = sshkey_check_rsa_length(prv, 0)) != 0)
+		if ((r = check_rsa_length(prv->rsa)) != 0)
 			goto out;
 	} else if (EVP_PKEY_base_id(pk) == EVP_PKEY_DSA &&
 	    (type == KEY_UNSPEC || type == KEY_DSA)) {

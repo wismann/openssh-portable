@@ -151,7 +151,6 @@
 #define HAVE_FIDO_DEV_GET_TOUCH_STATUS
 #define HAVE_FIDO_CRED_SET_CLIENTDATA
 #define HAVE_FIDO_ASSERT_SET_CLIENTDATA
-#define HAVE_FIDO_DEV_IS_WINHELLO
 
 /* File names may not contain backslash characters */
 /* #undef FILESYSTEM_NO_BACKSLASH */
@@ -1768,5 +1767,3 @@
 #define HAVE_EVP_PKEY_GET0_RSA 1
 #define HAVE_EVP_MD_CTX_NEW 1
 #define HAVE_EVP_MD_CTX_FREE 1
-
-
