@@ -435,7 +435,7 @@ copy /Y "$(LibreSSL-arm-Path)\libcrypto.dll" "$(OutDir)"</Command>
       <ExcludedFromBuild Condition="$(UseOpenSSL)=='false'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="$(OpenSSH-Src-Path)ssh-sk-client.c" />
-    <ClCompile Include="..\win32compat\win32-utf8.c" />
+    <ClCompile Include="$(OpenSSH-Src-Path)contrib\win32\win32compat\win32-utf8.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
