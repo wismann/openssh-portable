@@ -39,10 +39,10 @@
     <ClCompile Include="$(OpenSSH-Src-Path)scp.c" />
     <ClCompile Include="$(OpenSSH-Src-Path)contrib\win32\win32compat\wmain_common.c" />
     <ClCompile Include="$(OpenSSH-Src-Path)contrib\win32\win32compat\win32-utf8.c" />
-    <ClCompile Include="..\..\..\sftp-client.c" />
-    <ClCompile Include="..\..\..\sftp-common.c" />
-    <ClCompile Include="..\..\..\sftp-glob.c" />
-    <ClCompile Include="..\..\..\sftp-usergroup.c" />
+    <ClCompile Include="$(OpenSSH-Src-Path)sftp-client.c" />
+    <ClCompile Include="$(OpenSSH-Src-Path)sftp-common.c" />
+    <ClCompile Include="$(OpenSSH-Src-Path)sftp-glob.c" />
+    <ClCompile Include="$(OpenSSH-Src-Path)sftp-usergroup.c" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="version.rc" />
