@@ -36,8 +36,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="$(OpenSSH-Src-Path)\contrib\win32\win32compat\shell-host.c" />
-    <ClCompile Include="$(OpenSSH-Src-Path)\contrib\win32\win32compat\utf.c" />
+    <ClCompile Include="$(OpenSSH-Src-Path)contrib\win32\win32compat\shell-host.c" />
+    <ClCompile Include="$(OpenSSH-Src-Path)contrib\win32\win32compat\utf.c" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="version.rc" />
