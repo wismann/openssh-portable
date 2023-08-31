@@ -43,7 +43,6 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>config</RootNamespace>
     <WindowsTargetPlatformVersion>$(WindowsSDKVersion)</WindowsTargetPlatformVersion>
-    <ProjectName>config</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

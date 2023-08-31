@@ -52,7 +52,6 @@
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>keygen</RootNamespace>
     <WindowsTargetPlatformVersion>$(WindowsSDKVersion)</WindowsTargetPlatformVersion>
-    <ProjectName>ssh-add</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
